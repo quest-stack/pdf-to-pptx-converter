@@ -1,0 +1,17 @@
+# PDF処理
+PyMuPDF>=1.23.0
+pdfplumber>=0.10.0
+pdf2image>=1.16.3
+
+# PPTX生成
+python-pptx>=0.6.21
+
+# 画像処理
+Pillow>=10.0.0
+
+# 文字化け対策
+chardet>=5.0.0
+ftfy>=6.1.0
+
+# OCR（オプション）
+pytesseract>=0.3.10
