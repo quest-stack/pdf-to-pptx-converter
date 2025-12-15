@@ -154,9 +154,18 @@ class OCRProcessor:
 
         # カスタムtessdataパスを設定（ユーザーホームにjpn.traineddataがある場合）
         self.custom_tessdata = None
-        home_tessdata = os.path.expanduser("~")
-        if os.path.exists(os.path.join(home_tessdata, "jpn.traineddata")):
-            self.custom_tessdata = home_tessdata
+        home = os.path.expanduser("~")
+        # 優先順位: ~/tessdata/ > ~/
+        tessdata_candidates = [
+            os.path.join(home, "tessdata"),
+            home,
+        ]
+        for tessdata_path in tessdata_candidates:
+            if os.path.exists(os.path.join(tessdata_path, "jpn.traineddata")):
+                self.custom_tessdata = tessdata_path
+                # 環境変数を設定（Tesseractが参照するパス）
+                os.environ['TESSDATA_PREFIX'] = tessdata_path
+                break
 
         # 利用可能な言語を確認
         self.lang = lang
@@ -190,15 +199,11 @@ class OCRProcessor:
             img_width, img_height = image.size
 
             # Tesseract OCRでテキスト+位置情報を取得
-            config = ""
-            if self.custom_tessdata:
-                config = f'--tessdata-dir "{self.custom_tessdata}"'
-
+            # TESSDATA_PREFIX環境変数は__init__で設定済み
             data = pytesseract.image_to_data(
                 image,
                 lang=self.lang,
-                output_type=pytesseract.Output.DICT,
-                config=config
+                output_type=pytesseract.Output.DICT
             )
 
             blocks = []
